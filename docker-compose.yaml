@@ -1,0 +1,46 @@
+
+version: '3.3'
+
+
+services:
+   db:
+     image: mysql:5.7
+     volumes:
+       - db_data:/var/lib/mysql
+       - ./sql:/docker-entrypoint-initdb.d
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: arootpassword
+       MYSQL_DATABASE: jatos
+       MYSQL_USER: jatos
+       MYSQL_PASSWORD: jatosdbsecretsanta
+
+
+   jatos-backend:
+     depends_on:
+       - db
+     image: jatos/jatos:2.2.4
+     ports:
+       - "9000:9000"
+     environment:
+       JATOS_DB_URL: jdbc:mysql://db/jatos?characterEncoding=UTF-8
+       JATOS_DB_USERNAME: jatos
+       JATOS_DB_PASSWORD: "jatosdbsecretsanta"
+       JATOS_DB_DRIVER: com.mysql.jdbc.Driver
+       JATOS_JPA: adbuserpassword
+
+   nginx:
+     depends_on:
+       - jatos-backend
+     image: nginx/nginx:latest
+     ports:
+       - "80:80"
+       - "443:443"
+     environment:
+       VIRTUAL_HOST_OR_SOMETHING: jatos.mola.com
+
+
+volumes:
+    db_data: 
+
+
