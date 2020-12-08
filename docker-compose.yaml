@@ -32,7 +32,7 @@ services:
    nginx:
      depends_on:
        - jatos-backend
-     image: nginx/nginx:latest
+     image: nginx:1.19
      ports:
        - "80:80"
        - "443:443"
