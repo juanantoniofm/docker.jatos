@@ -29,7 +29,7 @@ services:
     # The official v2 Traefik docker image
     image: traefik:v2.3
     # Enables the web UI and tells Traefik to listen to docker
-    command: --api.insecure=true --providers.docker
+    command: --api --docker --debug
     depends_on:
       - jatos-backend
     environment:

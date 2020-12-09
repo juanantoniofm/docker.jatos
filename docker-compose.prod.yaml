@@ -15,7 +15,7 @@ services:
     ports:
       - "9000:9000"
     env_file:
-      - backend-variables.env
+      - /etc/environment
     networks:
       - internal
       - proxy
@@ -30,7 +30,7 @@ services:
     image: traefik:v1.7.18
     command: --docker
     depends_on:
-      - jatos-backend
+      - backend
     environment:
       VIRTUAL_HOST_OR_SOMETHING: jatos.mola.com
     ports:
