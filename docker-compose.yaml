@@ -1,46 +1,48 @@
-
-version: '3.3'
-
+version: "3.3"
 
 services:
-   db:
-     image: mysql:5.7
-     volumes:
-       - db_data:/var/lib/mysql
-       - ./sql:/docker-entrypoint-initdb.d
-     restart: always
-     environment:
-       MYSQL_ROOT_PASSWORD: arootpassword
-       MYSQL_DATABASE: jatos
-       MYSQL_USER: jatos
-       MYSQL_PASSWORD: jatosdbsecretsanta
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: arootpassword
+      MYSQL_DATABASE: jatos
+      MYSQL_USER: jatos
+      MYSQL_PASSWORD: jatosdbsecretsanta
 
+  jatos-backend:
+    depends_on:
+      - db
+    image: jatos/jatos:2.2.4
+    ports:
+      - "9000:9000"
+    environment:
+      JATOS_DB_URL: jdbc:mysql://db/jatos?characterEncoding=UTF-8
+      JATOS_DB_USERNAME: jatos
+      JATOS_DB_PASSWORD: "jatosdbsecretsanta"
+      JATOS_DB_DRIVER: com.mysql.jdbc.Driver
+      JATOS_JPA: adbuserpassword
 
-   jatos-backend:
-     depends_on:
-       - db
-     image: jatos/jatos:2.2.4
-     ports:
-       - "9000:9000"
-     environment:
-       JATOS_DB_URL: jdbc:mysql://db/jatos?characterEncoding=UTF-8
-       JATOS_DB_USERNAME: jatos
-       JATOS_DB_PASSWORD: "jatosdbsecretsanta"
-       JATOS_DB_DRIVER: com.mysql.jdbc.Driver
-       JATOS_JPA: adbuserpassword
-
-   nginx:
-     depends_on:
-       - jatos-backend
-     image: nginx:1.19
-     ports:
-       - "80:80"
-       - "443:443"
-     environment:
-       VIRTUAL_HOST_OR_SOMETHING: jatos.mola.com
-
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.3
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    depends_on:
+      - jatos-backend
+    environment:
+      VIRTUAL_HOST_OR_SOMETHING: jatos.mola.com
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
-    db_data: 
-
-
+  db_data:
