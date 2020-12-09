@@ -32,8 +32,7 @@ prod-mode:  ## Enable production to run in a prod server with separate DB
 
 dev-mode:  ## Enabled dev mode to run in a development machine
 	@echo "Running in dev mode"
-	mv docker-compose.yaml docker-compose.dev.yaml
-	mv docker-compose.prod.yaml docker-compose.yaml
+	mv docker-compose.dev.yaml docker-compose.yaml
 
 
 serve: check prod-mode start

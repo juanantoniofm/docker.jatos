@@ -13,7 +13,7 @@ services:
       MYSQL_USER: jatos
       MYSQL_PASSWORD: jatosdbsecretsanta
 
-  jatos-backend:
+  backend:
     depends_on:
       - db
     image: jatos/jatos:2.2.4
@@ -24,7 +24,6 @@ services:
       JATOS_DB_USERNAME: jatos
       JATOS_DB_PASSWORD: "jatosdbsecretsanta"
       JATOS_DB_DRIVER: com.mysql.jdbc.Driver
-      JATOS_JPA: adbuserpassword
 
   reverse-proxy:
     # The official v2 Traefik docker image

@@ -2,24 +2,48 @@
 version: '3.3'
 
 
+networks:
+  proxy:
+    external: true
+  internal:
+    external: false
+
 services:
 
-   jatos-backend:
-     image: jatos/jatos:2.2.4
-     ports:
-       - "9000:9000"
-     env_file:
-       - backend-variables.env
+  backend:
+    image: jatos/jatos:2.2.4
+    ports:
+      - "9000:9000"
+    env_file:
+      - backend-variables.env
+    networks:
+      - internal
+      - proxy
+    labels:
+      - "traefik.docker.network=proxy"
+      - "traefik.enable=true"
+      - "traefik.basic.frontend.rule=Host:<DOMAIN_NAME>"
+      - "traefik.basic.port=9000"
+      - "traefik.basic.protocol=http"
 
-   nginx:
-     depends_on:
-       - jatos-backend
-     image: nginx:1.19
-     ports:
-       - "80:80"
-       - "443:443"
-     environment:
-       VIRTUAL_HOST_OR_SOMETHING: jatos.mola.com
+  traefik:
+    image: traefik:v1.7.18
+    command: --docker
+    depends_on:
+      - jatos-backend
+    environment:
+      VIRTUAL_HOST_OR_SOMETHING: jatos.mola.com
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/traefik.toml:/traefik.toml
+      - /root/acme.json:/acme.json
+    container_name: traefik
+    restart: always
 
 
 volumes:
