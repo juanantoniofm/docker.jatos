@@ -19,6 +19,9 @@ services:
     networks:
       - internal
       - proxy
+    dns:
+      - 67.207.67.2
+      - 67.207.67.3
     labels:
       - "traefik.docker.network=proxy"
       - "traefik.enable=true"
